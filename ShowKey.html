@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <script src="https://unpkg.com/node-forge@1.0.0/dist/forge.min.js"></script>
+</head>
+<body>
+    <div>
+        <h3>Show CryptoGraphy Keys</h3>
+        <p>Here is publicKey : </p>
+        <a id="publicKey"></a>
+        <p>RealData (JSON) :</p>
+        <a> Data = {
+                Data: "001",
+                Name: "Sorathorn",
+                Number: 10
+            }
+        </a>
+        <p>Encrypted Data :</p>
+        <a id="encryptedData"></a>
+
+        <p>You can see decrypt data on server </p>
+        
+    </div>
+
+    <script>
+
+        function getKeys(){
+            return fetch('http://127.0.0.1:9000/keys', {
+                        method: 'GET', // or 'PUT'
+                        headers: {
+                        'Content-Type': 'application/json',
+                        },
+                    })
+            .then(response => response.json())
+            .then(data => {
+                return data;    
+            })
+        }
+        function sendData(encryptedData){
+            fetch('http://127.0.0.1:9000/sendData', {
+                        method: 'PUT', // or 'PUT'
+                        body: JSON.stringify({encryptedData: encryptedData}),
+                        headers: {
+                        'Content-Type': 'application/json',
+                        }
+                    
+                });
+        }
+        
+        // assume data 
+        const Data = {
+            Data: "001",
+            Name: "Sorathorn",
+            Number: 10
+        }
+
+        var getKeysNow = getKeys();
+        getKeysNow.then(data => {
+            console.log("Real Data : " ,data.publicKeyPem);
+            // show real data on HTML
+            document.getElementById("publicKey").innerHTML = data.publicKeyPem;
+            // encrypted data with publickey of server
+            publicKey = forge.pki.publicKeyFromPem(data.publicKeyPem);
+            encryptedData = publicKey.encrypt(JSON.stringify(Data));
+            console.log("Encrypt Data : " ,encryptedData);
+            // show encrypted Data on HTML
+            document.getElementById("encryptedData").innerHTML = encryptedData;
+            // send data to server
+            sendData(encryptedData);
+
+        });
+        
+
+
+
+    </script>
+</body>
+</html>
+
+
